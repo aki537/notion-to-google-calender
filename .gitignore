@@ -1,2 +1,3 @@
 api/token.json
 api/credentials.json
+.env
