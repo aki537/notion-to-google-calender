@@ -1,4 +1,4 @@
-package main
+package controller
 
 type AddCalender struct {
 	Date  string

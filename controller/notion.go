@@ -1,8 +1,9 @@
-package main
+package controller
 
 import (
 	"NotionToGoogleCalender/api"
 	"fmt"
+	"log"
 	"time"
 )
 
@@ -14,12 +15,12 @@ const (
 func GetNotionCalender(start, end string) ([]*AddCalender, error) {
 	addCalenderList := []*AddCalender{}
 	notionList := []*api.Result{}
-	notion, err := api.New()
+	notion, err := api.NewNotion()
 	if err != nil {
 		return nil, err
 	}
 
-	rangeList := GetSplitRange(start, end, []*Range{})
+	rangeList := getSplitRange(start, end, []*Range{})
 	// 2ヶ月ごとにページのリストを取得
 	for _, item := range rangeList {
 		reqBody, err := api.NewCalenderReqBody(item.Start, item.End)
@@ -43,11 +44,12 @@ func GetNotionCalender(start, end string) ([]*AddCalender, error) {
 		addCalender := toAddCalender(childblock.Results, item.Properties.Date.Date.Start)
 		addCalenderList = append(addCalenderList, addCalender)
 	}
+	log.Printf("追加用構造体に変換完了 全%d件", len(addCalenderList))
 	return addCalenderList, nil
 }
 
-// GetSplitRangeは、取得したい日付範囲を2ヶ月ごとに分割して再帰的に取得します
-func GetSplitRange(start, end string, list []*Range) []*Range {
+// getSplitRangeは、取得したい日付範囲を2ヶ月ごとに分割して再帰的に取得します
+func getSplitRange(start, end string, list []*Range) []*Range {
 	startDate, _ := time.Parse(timeFormat, start)
 	endDate, _ := time.Parse(timeFormat, end)
 
@@ -58,7 +60,7 @@ func GetSplitRange(start, end string, list []*Range) []*Range {
 	if ok {
 		addStart := addStartDate.Format(timeFormat)
 		list = append(list, &Range{Start: start, End: addStart})
-		list = GetSplitRange(addStart, end, list)
+		list = getSplitRange(addStart, end, list)
 	} else {
 		list = append(list, &Range{Start: start, End: end})
 	}
@@ -73,7 +75,7 @@ func toAddCalender(list []*api.Result, date string) *AddCalender {
 	result.Date = date
 	// タイトル
 	dateTime, _ := time.Parse(timeFormat, date)
-	result.Title = fmt.Sprintf("Diary %d-%d-%d", dateTime.Year(), dateTime.Month(), dateTime.Day())
+	result.Title = fmt.Sprintf("Diary %d/%d/%d", dateTime.Year(), dateTime.Month(), dateTime.Day())
 	// 本文
 	body := ""
 	for _, item := range list {

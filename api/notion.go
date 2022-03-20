@@ -22,7 +22,7 @@ type Notion struct {
 }
 
 // 環境変数をセットしたNotion構造体を返却
-func New() (*Notion, error) {
+func NewNotion() (*Notion, error) {
 	err := godotenv.Load("./.env")
 	if err != nil {
 		return nil, err
