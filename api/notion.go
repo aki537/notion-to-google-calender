@@ -99,13 +99,13 @@ func NewCalenderReqBody(start, end string) (io.Reader, error) {
 	reqBody := &ReqBody{
 		Filter: Filter{
 			And: []And{
-				And{
+				{
 					Property: "Date",
 					Date: FilterDate{
 						Before: end,
 					},
 				},
-				And{
+				{
 					Property: "Date",
 					Date: FilterDate{
 						After: start,
@@ -114,7 +114,7 @@ func NewCalenderReqBody(start, end string) (io.Reader, error) {
 			},
 		},
 		Sorts: []Sorts{
-			Sorts{
+			{
 				Property:  "Date",
 				Direction: "ascending",
 			},
